@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exam Result</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center px-4">
+
+<div class="bg-white shadow-xl rounded-2xl p-8 max-w-md text-center">
+    <h1 class="text-2xl font-bold text-red-600 mb-4">😞 You didn't pass</h1>
+
+    <p class="text-gray-700 text-lg mb-6">
+        Unfortunately, your score did not meet the passing threshold.
+    </p>
+
+    <div class="text-gray-800 mb-4">
+        <p><strong>Student ID:</strong> <span th:text="${studentId}"></span></p>
+        <p><strong>Exam ID:</strong> <span th:text="${examId}"></span></p>
+        <p><strong>Your Score:</strong> <span th:text="${score}"></span></p>
+    </div>
+
+    <a href="/" class="mt-6 inline-block bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition">
+        Try Again
+    </a>
+</div>
+
+</body>
+</html>

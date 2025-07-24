@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Java Foundations Exam</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 min-h-screen font-sans p-6">
+<div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8 space-y-6">
+    <h1 class="text-2xl font-bold text-blue-800">Java Foundations Exam</h1>
+    <p class="text-sm text-gray-600">Exam ID: <span th:text="${exam.id}"></span></p>
+    <p class="text-sm text-gray-600">Student ID: <span th:text="${exam.studentId}"></span></p>
+
+    <div id="result-container" class="hidden mt-6 text-center"></div>
+    <form id="exam-form" class="space-y-10">
+        <input type="hidden" id="exam-id" th:value="${exam.id}"/>
+        <input type="hidden" id="student-id" th:value="${exam.studentId}"/>
+
+        <div th:each="question : ${exam.questions}" class="border-b pb-6"
+             th:attr="data-question-id=${question.id}">
+            <h2 class="text-lg font-semibold mb-2 text-gray-800">
+                <span th:text="${question.text}"></span>
+            </h2>
+
+            <div class="space-y-2" th:each="option : ${question.options}">
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox"
+                           th:if="${question.type == 'multiple'}"
+                           th:value="${option.id}"
+                           th:attr="data-question-id=${question.id}"
+                           class="option-checkbox accent-blue-600"/>
+
+                    <input type="radio"
+                           th:if="${question.type != 'multiple'}"
+                           th:value="${option.id}"
+                           th:name="${question.id}"
+                           th:attr="data-question-id=${question.id}"
+                           class="option-radio accent-blue-600"/>
+
+                    <span th:text="${option.text}"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="text-center pt-4">
+            <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition">
+                Submit Exam
+            </button>
+        </div>
+    </form>
+
+
+</div>
+
+<!-- JavaScript to handle multiple checkboxes -->
+<script>
+    document.getElementById("exam-form").addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent traditional form submission
+
+        const examId = document.getElementById("exam-id").value;
+        const studentId = document.getElementById("student-id").value;
+
+        const answersMap = {};
+
+        // Handle checkboxes (multiple-choice)
+        document.querySelectorAll(".option-checkbox:checked").forEach(input => {
+            const questionId = input.dataset.questionId;
+            if (!answersMap[questionId]) {
+                answersMap[questionId] = [];
+            }
+            answersMap[questionId].push(input.value);
+        });
+
+        // Handle radio buttons (single-choice)
+        document.querySelectorAll(".option-radio:checked").forEach(input => {
+            const questionId = input.dataset.questionId;
+            answersMap[questionId] = [input.value]; // only one per question
+        });
+
+        // Convert answersMap to array of answer objects
+        const answers = Object.entries(answersMap).map(([questionId, selectedOptions]) => ({
+            questionId,
+            selectedOptions
+        }));
+
+        const payload = {
+            examId: examId,
+            studentId: studentId,
+            answers: answers
+        };
+
+        fetch("/submit-exam", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to submit exam");
+            }
+            return response.json();
+        })
+        .then(result => {
+            const container = document.getElementById("result-container");
+            container.classList.remove("hidden");
+
+            if (!result.success) {
+                container.innerHTML = `
+                  <div class="bg-red-100 text-red-700 p-4 rounded-lg shadow">
+                    <p><strong>Error:</strong> ${result.message || "Unknown error occurred."}</p>
+                  </div>
+                `;
+                return;
+            }
+
+            const exam = result.data;
+            const passed = exam.passed;
+            const score = exam.score;
+
+            container.innerHTML = `
+              <div class="bg-white p-6 rounded-xl shadow-md max-w-md mx-auto">
+                <h2 class="text-xl font-bold ${passed ? 'text-green-600' : 'text-red-600'}">
+                  ${passed ? '🎉 You passed the exam!' : '❌ You did not pass the exam.'}
+                </h2>
+                <p class="mt-2 text-gray-700">Score: ${score}</p>
+                <a href="/" class="mt-4 inline-block text-blue-600 hover:underline">Back to dashboard</a>
+              </div>
+            `;
+        })
+        .catch(error => {
+            console.error("Error submitting exam:", error);
+            alert("Something went wrong. Please try again later.");
+        });
+    });
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Question</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+<div class="w-full max-w-2xl bg-white p-8 rounded-2xl shadow-xl mt-10">
+    <h1 class="text-2xl font-bold mb-6">Add a Question</h1>
+    <form id="questionForm" class="space-y-6">
+        <div>
+            <label class="block font-medium">Question Text</label>
+            <input type="text" id="questionText" class="w-full p-2 border rounded mt-1" placeholder="Enter question..." required>
+        </div>
+
+        <div>
+            <label class="block font-medium mb-2">Options</label>
+            <div class="grid grid-cols-1 gap-4" id="solutions">
+                <!-- Four options (a,b,c,d) -->
+                <div class="flex items-center gap-3">
+                    <span class="font-semibold w-4">a.</span>
+                    <input type="text" class="flex-1 p-2 border rounded" id="option_a_text" placeholder="Option a" required>
+                    <label class="flex items-center cursor-pointer ml-2">
+                        <input type="radio" name="correct" id="option_a_correct" class="accent-blue-600">
+                        <span class="ml-1 text-sm">Correct</span>
+                    </label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-semibold w-4">b.</span>
+                    <input type="text" class="flex-1 p-2 border rounded" id="option_b_text" placeholder="Option b" required>
+                    <label class="flex items-center cursor-pointer ml-2">
+                        <input type="radio" name="correct" id="option_b_correct" class="accent-blue-600">
+                        <span class="ml-1 text-sm">Correct</span>
+                    </label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-semibold w-4">c.</span>
+                    <input type="text" class="flex-1 p-2 border rounded" id="option_c_text" placeholder="Option c" required>
+                    <label class="flex items-center cursor-pointer ml-2">
+                        <input type="radio" name="correct" id="option_c_correct" class="accent-blue-600">
+                        <span class="ml-1 text-sm">Correct</span>
+                    </label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-semibold w-4">d.</span>
+                    <input type="text" class="flex-1 p-2 border rounded" id="option_d_text" placeholder="Option d" required>
+                    <label class="flex items-center cursor-pointer ml-2">
+                        <input type="radio" name="correct" id="option_d_correct" class="accent-blue-600">
+                        <span class="ml-1 text-sm">Correct</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <label class="block font-medium">Type</label>
+            <select id="questionType" class="p-2 border rounded">
+                <option value="single">Single Correct</option>
+                <option value="multiple">Multiple Correct</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block font-medium">Category</label>
+            <input type="text" id="questionCategory" class="w-full p-2 border rounded mt-1" placeholder="e.g. test, science" required>
+        </div>
+
+        <div>
+            <label class="block font-medium">Image URL (optional)</label>
+            <input type="url" id="questionImageUrl" class="w-full p-2 border rounded mt-1" placeholder="https://example.com/image.jpg">
+            <img id="imagePreview" class="w-32 h-20 object-cover mt-2 rounded-lg border hidden" />
+        </div>
+
+        <div id="errorMsg" class="text-red-600"></div>
+        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg shadow hover:bg-blue-700 transition">
+            Submit
+        </button>
+    </form>
+    <div id="responseMsg" class="mt-8 p-4 bg-green-100 rounded-xl hidden"></div>
+</div>
+
+<script>
+    document.getElementById('questionType').addEventListener('change', function () {
+        const type = this.value;
+        const radios = document.querySelectorAll('input[type=radio][name=correct]');
+        radios.forEach(radio => radio.type = type === 'multiple' ? 'checkbox' : 'radio');
+        if(type === 'single') {
+            radios.forEach(radio => radio.checked = false);
+        }
+    });
+
+    document.getElementById('questionImageUrl').addEventListener('input', function () {
+        const url = this.value;
+        const img = document.getElementById('imagePreview');
+        if(url) {
+            img.src = url;
+            img.classList.remove('hidden');
+        } else {
+            img.classList.add('hidden');
+        }
+    });
+
+    document.getElementById('questionForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        document.getElementById('errorMsg').innerText = '';
+        document.getElementById('responseMsg').classList.add('hidden');
+
+        // Gather form values
+        const text = document.getElementById('questionText').value.trim();
+        const type = document.getElementById('questionType').value;
+        const category = document.getElementById('questionCategory').value.trim();
+        const imageUrl = document.getElementById('questionImageUrl').value.trim();
+
+        const solutionFields = [
+            { optionId: "a", textId: "option_a_text", correctId: "option_a_correct" },
+            { optionId: "b", textId: "option_b_text", correctId: "option_b_correct" },
+            { optionId: "c", textId: "option_c_text", correctId: "option_c_correct" },
+            { optionId: "d", textId: "option_d_text", correctId: "option_d_correct" },
+        ];
+
+        let solutions = [];
+        let correctCount = 0;
+        solutionFields.forEach(field => {
+            const solutionText = document.getElementById(field.textId).value.trim();
+            const correct =
+                (type === "single" && document.getElementById(field.correctId).checked) ||
+                (type === "multiple" && document.getElementById(field.correctId).checked);
+            if (solutionText) {
+                solutions.push({
+                    optionId: field.optionId,
+                    text: solutionText,
+                    correct: correct
+                });
+                if (correct) correctCount++;
+            }
+        });
+
+        // Validation
+        if (!text || !category || solutions.length !== 4 || correctCount === 0) {
+            document.getElementById('errorMsg').innerText =
+                "Please fill all fields and select at least one correct answer.";
+            return;
+        }
+        if(type === 'single' && correctCount > 1) {
+            document.getElementById('errorMsg').innerText =
+                "For single correct, only one answer can be correct.";
+            return;
+        }
+
+        const data = {
+            text,
+            solutions,
+            type,
+            category,
+            imageUrl
+        };
+
+        try {
+            const response = await fetch('/admin/questions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!response.ok) throw new Error("Server error");
+            const result = await response.json();
+            document.getElementById('responseMsg').classList.remove('hidden');
+            document.getElementById('responseMsg').innerText = "Success! Server responded with:\n" + JSON.stringify(result, null, 2);
+            this.reset();
+            document.getElementById('imagePreview').classList.add('hidden');
+        } catch (err) {
+            document.getElementById('errorMsg').innerText = "Submission failed.";
+        }
+    });
+</script>
+</body>
+</html>

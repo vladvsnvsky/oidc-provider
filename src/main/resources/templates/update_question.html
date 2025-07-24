@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Question</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+<div class="w-full max-w-2xl bg-white p-8 rounded-2xl shadow-xl mt-10">
+    <h1 class="text-2xl font-bold mb-6">Update Question</h1>
+
+    <!-- Assume 'id' and 'question' are passed to the template -->
+    <form id="updateForm">
+        <div>
+            <label class="block font-medium">Question Text</label>
+            <input type="text" id="text" class="w-full p-2 border rounded mt-1" placeholder="Question..." required
+                   th:value="${question.text}">
+        </div>
+
+        <div>
+            <label class="block font-medium mb-2">Options</label>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="font-semibold w-4">a.</span>
+                    <input type="text" id="option_a_text" class="flex-1 p-2 border rounded" placeholder="Option a" required
+                           th:value="${question.solutions[0].text}">
+                    <label class="flex items-center cursor-pointer ml-2">
+                        <input type="radio" name="correct" id="option_a_correct"
+                               th:checked="${question.solutions[0].correct ? 'checked' : null}" value="a"
+                               class="accent-blue-600">
+                        <span class="ml-1 text-sm">Correct</span>
+                    </label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-semibold w-4">b.</span>
+                    <input type="text" id="option_b_text" class="flex-1 p-2 border rounded" placeholder="Option b" required
+                           th:value="${question.solutions[1].text}">
+                    <label class="flex items-center cursor-pointer ml-2">
+                        <input type="radio" name="correct" id="option_b_correct"
+                               th:checked="${question.solutions[1].correct ? 'checked' : null}" value="b"
+                               class="accent-blue-600">
+                        <span class="ml-1 text-sm">Correct</span>
+                    </label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-semibold w-4">c.</span>
+                    <input type="text" id="option_c_text" class="flex-1 p-2 border rounded" placeholder="Option c" required
+                           th:value="${question.solutions[2].text}">
+                    <label class="flex items-center cursor-pointer ml-2">
+                        <input type="radio" name="correct" id="option_c_correct"
+                               th:checked="${question.solutions[2].correct ? 'checked' : null}" value="c"
+                               class="accent-blue-600">
+                        <span class="ml-1 text-sm">Correct</span>
+                    </label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-semibold w-4">d.</span>
+                    <input type="text" id="option_d_text" class="flex-1 p-2 border rounded" placeholder="Option d" required
+                           th:value="${question.solutions[3].text}">
+                    <label class="flex items-center cursor-pointer ml-2">
+                        <input type="radio" name="correct" id="option_d_correct"
+                               th:checked="${question.solutions[3].correct ? 'checked' : null}" value="d"
+                               class="accent-blue-600">
+                        <span class="ml-1 text-sm">Correct</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4 mt-4">
+            <label class="block font-medium">Type</label>
+            <select id="type" class="p-2 border rounded">
+                <option value="single" th:selected="${question.type == 'single'}">Single Correct</option>
+                <option value="multiple" th:selected="${question.type == 'multiple'}">Multiple Correct</option>
+            </select>
+        </div>
+
+        <div class="mt-4">
+            <label class="block font-medium">Category</label>
+            <input type="text" id="category" class="w-full p-2 border rounded mt-1" placeholder="Category..." required
+                   th:value="${question.category}">
+        </div>
+
+        <div class="mt-4">
+            <label class="block font-medium">Image URL (optional)</label>
+            <input type="url" id="imageUrl" class="w-full p-2 border rounded mt-1" placeholder="https://example.com/image.jpg"
+                   th:value="${question.imageUrl}">
+            <img id="imagePreview" th:if="${question.imageUrl}" th:src="${question.imageUrl}"
+                 alt="Preview" class="w-32 h-20 object-cover mt-2 rounded-lg border" />
+        </div>
+
+        <div id="errorMsg" class="text-red-600 mt-2"></div>
+        <button type="submit"
+                class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg shadow hover:bg-blue-700 transition mt-4">
+            Update
+        </button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('updateForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Get question ID from a Thymeleaf variable
+        const questionId = [[${id}]];
+        // Or add a hidden input for id and use: document.getElementById('questionId').value
+
+        // Solutions array
+        const solutions = [
+            {
+                optionId: "a",
+                text: document.getElementById('option_a_text').value,
+                correct: document.getElementById('option_a_correct').checked
+            },
+            {
+                optionId: "b",
+                text: document.getElementById('option_b_text').value,
+                correct: document.getElementById('option_b_correct').checked
+            },
+            {
+                optionId: "c",
+                text: document.getElementById('option_c_text').value,
+                correct: document.getElementById('option_c_correct').checked
+            },
+            {
+                optionId: "d",
+                text: document.getElementById('option_d_text').value,
+                correct: document.getElementById('option_d_correct').checked
+            }
+        ];
+
+        // Build the data object
+        const data = {
+            text: document.getElementById('text').value,
+            solutions: solutions,
+            type: document.getElementById('type').value,
+            category: document.getElementById('category').value,
+            imageUrl: document.getElementById('imageUrl').value
+        };
+
+        // Send PUT request with JSON body
+        try {
+            const response = await fetch(`/admin/questions/${questionId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            if (!response.ok) throw new Error("Update failed");
+            // Optionally handle success (e.g., show message, redirect)
+            window.location.reload(); // or show a success message
+        } catch (err) {
+            document.getElementById('errorMsg').innerText = "Error updating question!";
+        }
+    });
+
+    // Live preview for image
+    document.getElementById('imageUrl').addEventListener('input', function () {
+        const img = document.getElementById('imagePreview');
+        if (this.value) {
+            img.src = this.value;
+            img.classList.remove('hidden');
+        } else {
+            img.classList.add('hidden');
+        }
+    });
+</script>
+</body>
+</html>

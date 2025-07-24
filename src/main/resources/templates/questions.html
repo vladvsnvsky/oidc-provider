@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Paginated Questions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-10">
+<div class="max-w-3xl mx-auto bg-white rounded-xl shadow p-8">
+    <h1 class="text-2xl font-bold mb-8">Java Foundations Exam Questions</h1>
+    <div th:if="${page.content.size() == 0}" class="text-gray-500">No questions found.</div>
+    <div th:each="question, iterStat : ${page.content}" class="mb-8">
+        <div class="mb-2 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+            <div>
+<!--                <span class="text-lg font-semibold" th:text="${iterStat.index + 1} + '.'"></span>-->
+                <span class="text-lg font-semibold" th:text="${question.text}"></span>
+            </div>
+            <span class="text-sm text-blue-600 bg-blue-50 rounded px-2 py-0.5 ml-1 mt-2 sm:mt-0" th:text="${question.category}"></span>
+        </div>
+        <ul class="pl-6 mb-2">
+            <li th:each="sol : ${question.solutions}" class="mb-1 flex items-center">
+                <span class="mr-2 font-bold" th:text="${sol.optionId} + ')'"></span>
+                <span th:text="${sol.text}"></span>
+                <span th:if="${sol.correct}" class="ml-2 text-green-600 text-xs bg-green-100 rounded px-2 py-0.5">Correct</span>
+            </li>
+        </ul>
+        <div th:if="${question.imageUrl != null}">
+            <img th:src="${question.imageUrl}" alt="Question image" class="w-64 mt-2 rounded-lg border shadow-sm" />
+        </div>
+        <div>
+            <span class="text-xs bg-gray-100 text-gray-600 rounded px-2 py-0.5" th:text="${question.type == 'multiple' ? 'Multiple Answers' : 'Single Answer'}"></span>
+        </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex justify-between items-center mt-10">
+        <a th:if="${!page.first}" th:href="@{'/questions'(page=${page.number - 1},size=${page.size})}"
+           class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">Previous</a>
+        <span class="text-gray-600">
+            Page <span th:text="${page.number + 1}"></span> of <span th:text="${page.totalPages}"></span>
+        </span>
+        <a th:if="${!page.last}" th:href="@{'/questions'(page=${page.number + 1},size=${page.size})}"
+           class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">Next</a>
+    </div>
+</div>
+</body>
+</html>

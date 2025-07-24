@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-8">
+<div class="max-w-3xl mx-auto bg-white rounded-xl shadow p-8">
+    <h1 class="text-2xl font-bold mb-6">Users</h1>
+
+    <!-- Search Form -->
+    <form method="get" th:action="@{/users}" class="mb-6 flex gap-2">
+        <input type="text" name="query" th:value="${param.query}" placeholder="Search by name or email..."
+               class="flex-1 p-2 border rounded" />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Search</button>
+    </form>
+
+    <!-- User Table -->
+    <table class="w-full table-auto border-collapse mb-4">
+        <thead>
+        <tr class="bg-gray-50 text-left">
+            <th class="p-2 font-medium">#</th>
+            <th class="p-2 font-medium">First Name</th>
+            <th class="p-2 font-medium">Last Name</th>
+            <th class="p-2 font-medium">Email</th>
+            <th class="p-2 font-medium">Birthdate</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user, stat : ${page.content}" class="border-b last:border-b-0">
+            <td class="p-2 text-gray-500" th:text="${stat.index + 1 + page.number * page.size}"></td>
+            <td class="p-2" th:text="${user.firstName}"></td>
+            <td class="p-2" th:text="${user.lastName}"></td>
+            <td class="p-2" th:text="${user.email}"></td>
+            <td class="p-2" th:text="${user.birthdate}"></td>
+        </tr>
+        <tr th:if="${page.content.size() == 0}">
+            <td colspan="5" class="p-4 text-center text-gray-400">No users found.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div class="flex justify-between items-center mt-4">
+        <a th:if="${!page.first}" th:href="@{/users(query=${param.query}, page=${page.number - 1}, size=${page.size})}"
+           class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">Previous</a>
+        <span class="text-gray-600">
+            Page <span th:text="${page.number + 1}"></span> of <span th:text="${page.totalPages}"></span>
+        </span>
+        <a th:if="${!page.last}" th:href="@{/users(query=${param.query}, page=${page.number + 1}, size=${page.size})}"
+           class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">Next</a>
+    </div>
+</div>
+</body>
+</html>
