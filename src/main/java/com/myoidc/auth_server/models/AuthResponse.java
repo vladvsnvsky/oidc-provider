@@ -9,15 +9,15 @@ public class AuthResponse {
 
     private boolean success;
 
-    private UserEntity user;
+    private UserEntityDTO user;
 
     public AuthResponse(){}
 
-    public UserEntity getUser() {
+    public UserEntityDTO getUser() {
         return user;
     }
 
-    public void setUser(UserEntity user) {
+    public void setUser(UserEntityDTO user) {
         this.user = user;
     }
 

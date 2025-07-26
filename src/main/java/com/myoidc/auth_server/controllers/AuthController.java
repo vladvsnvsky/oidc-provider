@@ -2,6 +2,7 @@ package com.myoidc.auth_server.controllers;
 
 import com.myoidc.auth_server.dto.AuthRequestDTO;
 import com.myoidc.auth_server.models.AuthResponse;
+import com.myoidc.auth_server.models.UserEntity;
 import com.myoidc.auth_server.services.AuthenticationService;
 import com.myoidc.auth_server.services.JwtService;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class AuthController {
         AuthResponse authResponse = authService.authenticate(dto);
 
         if(authResponse.isSuccess()){
-            String jwtToken = jwtService.generateToken(authResponse.getUser());
+            String jwtToken = jwtService.generateToken(UserEntity.fromDTO(authResponse.getUser()));
             authResponse.setToken(jwtToken);
             authResponse.setExpiresIn(jwtService.getExpirationTime());
         }

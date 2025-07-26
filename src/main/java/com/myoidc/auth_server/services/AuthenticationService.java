@@ -37,8 +37,7 @@ public class AuthenticationService {
 
             response.setSuccess(true);
             response.setMessage("Authenticated!");
-            response.setUser(inDb.get());
-            response.getUser().setHashedPassword(null);
+            response.setUser(inDb.get().toDTO());
             return response;
 
 
