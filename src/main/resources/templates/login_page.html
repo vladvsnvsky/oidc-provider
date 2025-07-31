@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8" />
-    <title>Student Login</title>
+    <title>Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-100 to-blue-300 flex items-center justify-center font-sans">
@@ -12,61 +12,86 @@
     <div id="error-alert" class="hidden absolute top-2 left-4 right-4 bg-red-100 text-red-800 border border-red-300 rounded-md px-4 py-2 text-sm"></div>
 
     <h1 class="text-2xl md:text-3xl font-semibold text-blue-900 mb-6">
-        Java Foundations Exam
+        Login to Continue
     </h1>
 
-    <form method="POST" action="/login" class="space-y-6">
+    <form id="login-form" class="space-y-6" th:action="@{/auth/login}" method="POST">
         <div>
-            <label for="studentId" class="block text-gray-700 text-sm font-medium mb-2">Student ID</label>
+            <label for="email" class="block text-gray-700 text-sm font-medium mb-2">Email</label>
             <input
-                    id="studentId"
-                    name="username"
-            type="text"
-            required
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none"
-            placeholder="Enter your ID"
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none"
+                    placeholder="Enter your email"
             />
-            <input type="hidden" name="password" value="none" />
-
         </div>
 
-        <!-- Hidden password input to satisfy Spring Security default -->
-        <input type="hidden" name="password" value="none" />
+        <div>
+            <label for="password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
+            <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none"
+                    placeholder="Enter your password"
+            />
+        </div>
 
-        <div class="flex flex-col md:flex-row justify-center gap-4">
+        <div class="flex justify-center">
             <button
-                    type="submit"
                     class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition"
+                    type="submit"
             >
-                Start Exam
+                Log In
             </button>
-
-            <!-- Check Exam History Button -->
-            <a
-                    href="#"
-                    onclick="event.preventDefault(); const id=document.getElementById('studentId').value; if(id) window.location.href='/view-results?studentId=' + id; else alert('Please enter your Student ID before checking history.')"
-                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition"
-            >
-                Check Exam History
-            </a>
         </div>
     </form>
-
 </div>
 
 <script>
-    // Error display from query param
-    const params = new URLSearchParams(window.location.search);
-    const error = params.get("error");
-    if (error === "missingId") {
-      showError("Student ID is required to start a exam.");
-    }
+    const form = document.getElementById("login-form");
 
-    // Function to show error
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+
+        if (!email || !password) {
+            showError("Both fields are required.");
+            return;
+        }
+
+        try {
+            const response = await fetch("/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                console.log(data)
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data.user));
+                window.location.href = "/questions"; // change this to your protected route
+            } else {
+                showError(data.message || "Invalid credentials.");
+            }
+        } catch (err) {
+            console.error("Login error:", err);
+            showError("Server error. Please try again.");
+        }
+    });
+
     function showError(message) {
-      const alert = document.getElementById("error-alert");
-      alert.textContent = message;
-      alert.classList.remove("hidden");
+        const alert = document.getElementById("error-alert");
+        alert.textContent = message;
+        alert.classList.remove("hidden");
     }
 </script>
 </body>

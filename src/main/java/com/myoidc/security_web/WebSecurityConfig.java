@@ -20,6 +20,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -40,14 +42,16 @@ public class WebSecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/api/**").permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authenticationProvider(authenticationProvider()) // Set manually
+                .httpBasic(withDefaults()) // force 401 instead of login form
+                .formLogin(form -> form.disable()) // disable login page for APIs
+                .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
 
         return http.build();
     }
@@ -68,9 +72,6 @@ public class WebSecurityConfig {
                 .passwordEncoder(passwordEncoder);
         return authBuilder.build();
     }
-
-
-
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {

@@ -52,7 +52,7 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserEntityDTO> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
+        System.out.println("Authorities: " + authentication.getAuthorities());
         UserEntity currentUser = (UserEntity) authentication.getPrincipal();
 
         return ResponseEntity.ok(currentUser.toDTO());

@@ -9,11 +9,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/admin")
+@RestController
+@RequestMapping("/api/questions")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class QuestionController {
 
     private final QuestionService questionService;
@@ -22,7 +23,7 @@ public class QuestionController {
         this.questionService = questionService;
     }
 
-    @PostMapping("/questions")
+    @PostMapping()
     public ResponseEntity<QuestionDTO> saveQuestion(@RequestBody QuestionDTO questionDTO) {
         try {
             Question saved = questionService.saveQuestion(Question.fromDTO(questionDTO));
@@ -33,7 +34,7 @@ public class QuestionController {
         }
     }
 
-    @DeleteMapping("/questions/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteQuestion(@PathVariable Long id) {
         try {
             questionService.deleteQuestionById(id);
@@ -43,7 +44,7 @@ public class QuestionController {
         }
     }
 
-    @PutMapping("/questions/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<QuestionDTO> updateQuestion(
             @PathVariable Long id,
             @RequestBody QuestionDTO questionDTO) {
@@ -57,7 +58,7 @@ public class QuestionController {
         }
     }
 
-    @GetMapping("/questions")
+    @GetMapping()
     public ResponseEntity<Page<QuestionDTO>> getQuestions(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -67,8 +68,5 @@ public class QuestionController {
         Page<QuestionDTO> dtoPage = questions.map(Question::toDTO);
         return ResponseEntity.ok(dtoPage);
     }
-
-
-
 
 }

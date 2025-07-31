@@ -147,12 +147,12 @@ public class UserEntity implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "";
+        return this.hashedPassword;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return this.email;
     }
 
     @Override

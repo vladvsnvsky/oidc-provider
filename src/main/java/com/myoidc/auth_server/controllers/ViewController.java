@@ -24,6 +24,11 @@ public class ViewController {
         this.userService = userService;
     }
 
+    @GetMapping("/")
+    public String home() {
+        return "login_page";
+    }
+
     @GetMapping("/questions")
     public String showQuestions(@RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "1") int size,

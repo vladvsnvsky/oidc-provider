@@ -1,6 +1,7 @@
 package com.myoidc.security_web;
 
 import com.myoidc.auth_server.services.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -53,7 +54,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             final String userEmail = jwtService.extractUsername(jwt);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
             if (userEmail != null && authentication == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
@@ -70,7 +70,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             filterChain.doFilter(request, response);
-        } catch (Exception exception) {
+        }catch(ExpiredJwtException ex){
+            System.out.println("Token is expired");
+            handlerExceptionResolver.resolveException(request, response, null, ex);
+        }
+        catch (Exception exception) {
             handlerExceptionResolver.resolveException(request, response, null, exception);
         }
     }

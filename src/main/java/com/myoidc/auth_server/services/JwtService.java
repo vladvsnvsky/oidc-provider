@@ -9,7 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Claims;
 
+import javax.crypto.SecretKey;
 import java.security.Key;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +51,8 @@ public class JwtService {
             UserDetails userDetails,
             long expiration
     ) {
+        String username = userDetails.getUsername();
+
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
@@ -61,11 +65,13 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        final Claims claims = extractAllClaims(token);
+        return username.equals(userDetails.getUsername()) && !isExpiredWithSkew(claims.getExpiration(), Duration.ofSeconds(60));
     }
-
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    private boolean isExpiredWithSkew(Date expiration, Duration skew) {
+        long now = System.currentTimeMillis();
+        long allowedExpirationTime = expiration.getTime() + skew.toMillis();
+        return now > allowedExpirationTime;
     }
 
     private Date extractExpiration(String token) {
@@ -75,13 +81,13 @@ public class JwtService {
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parser()
-                .setSigningKey(getSignInKey())
+                .verifyWith(getSignInKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
-    private Key getSignInKey() {
+    private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
