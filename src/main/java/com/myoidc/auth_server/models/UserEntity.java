@@ -24,6 +24,7 @@ public class UserEntity implements UserDetails {
     private String email;
     private String firstName;
     private String lastName;
+    private int attempts;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthdate;
 
@@ -136,6 +137,14 @@ public class UserEntity implements UserDetails {
 
     public void setHashedPassword(String hashedPassword) {
         this.hashedPassword = hashedPassword;
+    }
+
+    public int getAttempts() {
+        return attempts;
+    }
+
+    public void setAttempts(int attempts) {
+        this.attempts = attempts;
     }
 
     @Override

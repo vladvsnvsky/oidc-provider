@@ -92,5 +92,7 @@ public class UserService implements UserDetailsService {
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName().name()))
         );
     }
+
+
 }
 

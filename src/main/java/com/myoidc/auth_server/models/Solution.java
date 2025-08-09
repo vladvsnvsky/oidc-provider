@@ -1,6 +1,7 @@
 package com.myoidc.auth_server.models;
 
 import com.myoidc.auth_server.dto.SolutionDTO;
+import com.myoidc.auth_server.models.enums.OptionLabel;
 import jakarta.persistence.*;
 
 @Entity
@@ -10,7 +11,7 @@ public class Solution {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // can still use "a", "b", "c", "d" as primary key, but consider using a Long id in practice
 
-    private String optionId; // <-- "a", "b", "c", "d"
+    private OptionLabel optionId; // <-- "a", "b", "c", "d"
 
     private String text;
 
@@ -20,11 +21,11 @@ public class Solution {
     @JoinColumn(name = "question_id")
     private Question question;
 
-    public String getOptionId() {
+    public OptionLabel getOptionId() {
         return optionId;
     }
 
-    public void setOptionId(String optionId) {
+    public void setOptionId(OptionLabel optionId) {
         this.optionId = optionId;
     }
 
@@ -64,7 +65,7 @@ public class Solution {
         SolutionDTO dto = new SolutionDTO();
         dto.setOptionId(this.getOptionId());
         dto.setText(this.getText());
-        dto.setCorrect(this.isCorrect());
+//        dto.setCorrect(this.isCorrect());
         return dto;
     }
 }

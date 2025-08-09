@@ -3,6 +3,7 @@ package com.myoidc.auth_server.controllers;
 import com.myoidc.auth_server.dto.QuestionDTO;
 import com.myoidc.auth_server.dto.UserEntityDTO;
 import com.myoidc.auth_server.dto.UserRegistrationDTO;
+import com.myoidc.auth_server.models.ApiResponse;
 import com.myoidc.auth_server.models.Question;
 import com.myoidc.auth_server.models.UserEntity;
 import com.myoidc.auth_server.services.UserService;
@@ -27,12 +28,22 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserEntityDTO> createUser(@RequestBody UserRegistrationDTO dto) {
+    public ResponseEntity<ApiResponse> createUser(@RequestBody UserRegistrationDTO dto) {
         try {
             UserEntityDTO user = userService.save(dto);
-            return ResponseEntity.ok(user);
+            ApiResponse apiResp = new ApiResponse(
+                    true,
+                    user,
+                    "success"
+            );
+            return ResponseEntity.ok(apiResp);
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().build();
+            ApiResponse apiResp = new ApiResponse(
+                    false,
+                    null,
+                    "There was an error and we couldn't create a new user."
+            );
+            return ResponseEntity.ok(apiResp);
         }
     }
 
@@ -50,12 +61,17 @@ public class UserController {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserEntityDTO> authenticatedUser() {
+    public ResponseEntity<ApiResponse> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         System.out.println("Authorities: " + authentication.getAuthorities());
         UserEntity currentUser = (UserEntity) authentication.getPrincipal();
 
-        return ResponseEntity.ok(currentUser.toDTO());
+        ApiResponse apiResp = new ApiResponse(
+                true,
+                currentUser.toDTO(),
+                "success"
+        );
+        return ResponseEntity.ok(apiResp);
     }
 
 

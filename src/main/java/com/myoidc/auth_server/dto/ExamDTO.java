@@ -1,39 +1,37 @@
 package com.myoidc.auth_server.dto;
 
-import com.myoidc.auth_server.models.Exam;
-import com.myoidc.auth_server.models.Question;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+// ExamDTO.java
 public class ExamDTO {
-    private String id = "test";
-    private String studentId;
-    private List<QuestionDTO> questions;
+    private Long id;
 
-    public ExamDTO(Exam exam) {
-        this.id = exam.getId(); // or "test" if hardcoded
-        this.studentId = exam.getStudentId();
-        this.questions = exam.getQuestions().stream()
-                .map(Question::toDTO)
-                .collect(Collectors.toList());
+    // keep user data minimal in the DTO
+    private String userId;     // UUID as string to avoid coupling
+    private String userEmail;
+
+    private List<ExamQuestionDTO> questions = new ArrayList<>();
+
+    public ExamDTO() {}
+
+    public ExamDTO(Long id, String userId, String userEmail, List<ExamQuestionDTO> questions) {
+        this.id = id;
+        this.userId = userId;
+        this.userEmail = userEmail;
+        this.questions = questions;
     }
 
-    public static ExamDTO fromExam(Exam exam) {
-        return new ExamDTO(exam);
-    }
-
-    // Getters
-    public String getId() {
-        return id;
-    }
-
-    public String getStudentId() {
-        return studentId;
-    }
-
-    public List<QuestionDTO> getQuestions() {
-        return questions;
-    }
+    // getters/setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
+    public List<ExamQuestionDTO> getQuestions() { return questions; }
+    public void setQuestions(List<ExamQuestionDTO> questions) { this.questions = questions; }
 }
+
 

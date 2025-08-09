@@ -1,37 +1,74 @@
 package com.myoidc.auth_server.models;
 
-import java.util.HashMap;
+import com.myoidc.auth_server.dto.ExamDTO;
+import com.myoidc.auth_server.dto.ExamQuestionDTO;
+import com.myoidc.auth_server.models.enums.AnswerStatus;
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
+import java.util.Set;
 
+@Entity
 public class Exam {
-    private String id = "test";
-    private String studentId;
-    private List<Question> questions;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public Exam(String studentId, List<Question> questions){
-//        this.id = UUID.randomUUID().toString();
-        this.studentId = studentId;
+    // an exam belongs to a user
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
+
+    // use join entity to carry per-exam state
+    @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ExamQuestion> questions = new HashSet<>();
+
+    public Exam(){}
+
+    public Exam(Long id, UserEntity user, Set<ExamQuestion> questions) {
+        this.id = id;
+        this.user = user;
         this.questions = questions;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public String getStudentId() {
-        return studentId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setStudentId(String studentId) {
-        this.studentId = studentId;
+    public UserEntity getUser() {
+        return user;
     }
 
-    public List<Question> getQuestions() {
+    public void setUser(UserEntity user) {
+        this.user = user;
+    }
+
+    public Set<ExamQuestion> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(List<Question> questions) {
+    public void setQuestions(Set<ExamQuestion> questions) {
         this.questions = questions;
     }
+
+    public ExamDTO toDTO(){
+        ExamDTO dto = new ExamDTO();
+        dto.setId(id);
+        dto.setUserEmail(user.getEmail());
+        dto.setUserId(user.getId().toString());
+        List<ExamQuestionDTO> eqDto = new ArrayList<>();
+        questions.forEach(q ->{
+            eqDto.add(q.toDTO());
+        });
+        dto.setQuestions(eqDto);
+        return dto;
+    }
+
+
+
 }

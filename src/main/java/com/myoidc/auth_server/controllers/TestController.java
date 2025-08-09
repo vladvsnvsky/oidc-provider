@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
     @PostMapping
     public String test() {
-        System.out.println("est endpoint hit!");
+        System.out.println("test endpoint hit!");
         return "Success";
     }
 }

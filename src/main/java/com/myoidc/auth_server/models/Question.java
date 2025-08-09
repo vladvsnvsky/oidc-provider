@@ -2,6 +2,7 @@ package com.myoidc.auth_server.models;
 
 import com.myoidc.auth_server.dto.QuestionDTO;
 import com.myoidc.auth_server.dto.SolutionDTO;
+import com.myoidc.auth_server.models.enums.QuestionType;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public class Question {
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Solution> solutions;
 
-    private String type; // "single" or "multiple"
+    private QuestionType type; // "single" or "multiple"
 
     private String category;
 
@@ -50,11 +51,11 @@ public class Question {
         this.solutions = solutions;
     }
 
-    public String getType() {
+    public QuestionType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(QuestionType type) {
         this.type = type;
     }
 
@@ -105,8 +106,7 @@ public class Question {
                 Solution solution = new Solution();
                 solution.setOptionId(solutionDTO.getOptionId());
                 solution.setText(solutionDTO.getText());
-                solution.setCorrect(solutionDTO.isCorrect());
-                solution.setQuestion(question); // Very important for JPA!
+                solution.setQuestion(question);
                 solutionList.add(solution);
             }
         }

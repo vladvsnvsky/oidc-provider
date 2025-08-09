@@ -10,9 +10,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
+
 
 @Service
 public class QuestionService {
+
     @Autowired
     private QuestionRepository questionRepository;
 
@@ -42,8 +45,7 @@ public class QuestionService {
                 Solution solution = new Solution();
                 solution.setOptionId(solutionDTO.getOptionId());
                 solution.setText(solutionDTO.getText());
-                solution.setCorrect(solutionDTO.isCorrect());
-                solution.setQuestion(existing); // maintain the relationship
+                solution.setQuestion(existing);
                 existing.getSolutions().add(solution);
             }
         }
@@ -60,5 +62,63 @@ public class QuestionService {
                 .orElseThrow(() -> new RuntimeException("Question not found!"));
 
         return existing.toDTO();
+    }
+
+    public List<Question> getRandomQuestions(int quantity) {
+
+        try {
+            List<Long> allIds = questionRepository.findAllIds(); // Custom query that returns all question IDs
+
+            if (allIds.size() < quantity) {
+                throw new RuntimeException("Not enough questions available in the database.");
+            }
+
+            Collections.shuffle(allIds);
+            List<Long> selectedIds = allIds.subList(0, quantity);
+
+            List<Question> results = new ArrayList<>();
+            for (Long id : selectedIds) {
+                Question question = questionRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Question not found with id: " + id));
+                results.add(question);
+            }
+
+            return results;
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<QuestionDTO> getRandomQuestionDTOs(int quantity) {
+
+        try {
+            List<Long> allIds = questionRepository.findAllIds(); // Custom query that returns all question IDs
+
+            if (allIds.size() < quantity) {
+                throw new RuntimeException("Not enough questions available in the database.");
+            }
+
+            Collections.shuffle(allIds);
+            List<Long> selectedIds = allIds.subList(0, quantity);
+
+            List<QuestionDTO> results = new ArrayList<>();
+            for (Long id : selectedIds) {
+                Question question = questionRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Question not found with id: " + id));
+                results.add(question.toDTO());
+            }
+
+            return results;
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
+    public List<Question> saveAllQuestions(List<Question> questionsToSave) {
+        return questionRepository.saveAll(questionsToSave);
     }
 }
