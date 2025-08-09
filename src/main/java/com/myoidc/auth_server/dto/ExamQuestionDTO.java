@@ -1,8 +1,14 @@
 package com.myoidc.auth_server.dto;
-
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.myoidc.auth_server.models.enums.AnswerStatus;
 
 public class ExamQuestionDTO {
+    private Long id;
+    private Long examId;
+    private QuestionDTO question;
+    private boolean answered;
+    private AnswerStatus correct;
+
     public ExamQuestionDTO(Long id, Long examId, QuestionDTO questionDTO, boolean answered, AnswerStatus correct) {
         this.id = id;
         this.examId = examId;
@@ -10,12 +16,6 @@ public class ExamQuestionDTO {
         this.answered = answered;
         this.correct = correct;
     }
-
-    private Long id;
-    private Long examId;
-    private QuestionDTO question;
-    private boolean answered;
-    private AnswerStatus correct;
 
     public Long getId() {
         return id;
@@ -25,8 +25,20 @@ public class ExamQuestionDTO {
         this.id = id;
     }
 
-    public QuestionDTO getQuestionDTO() {
+    public Long getExamId() {
+        return examId;
+    }
+
+    public void setExamId(Long examId) {
+        this.examId = examId;
+    }
+
+    public QuestionDTO getQuestion() {
         return question;
+    }
+
+    public void setQuestion(QuestionDTO question) {
+        this.question = question;
     }
 
     public boolean isAnswered() {

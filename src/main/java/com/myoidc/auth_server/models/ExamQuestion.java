@@ -91,7 +91,7 @@ public class ExamQuestion {
         return  new ExamQuestion(
                 dto.getId(),
                 null,
-                Question.fromDTO(dto.getQuestionDTO()),
+                Question.fromDTO(dto.getQuestion()),
                 dto.isAnswered(),
                 dto.getCorrect()
         );
