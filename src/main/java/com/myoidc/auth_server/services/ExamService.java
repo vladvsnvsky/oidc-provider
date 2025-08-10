@@ -1,5 +1,6 @@
 package com.myoidc.auth_server.services;
 
+import com.myoidc.auth_server.custom_exceptions.ExamNotFoundException;
 import com.myoidc.auth_server.custom_exceptions.NoExamAttemptsException;
 import com.myoidc.auth_server.dto.ExamDTO;
 import com.myoidc.auth_server.dto.UserUpdateDTO;
@@ -37,8 +38,7 @@ public class ExamService {
     @Transactional
     public ExamDTO create(String email){
         try{
-            UserEntity userFetched = userService.findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+            UserEntity userFetched = getUserEntityByEmail(email);
 
             if(userFetched.getAttempts() < 1)
                 throw new NoExamAttemptsException();
@@ -94,9 +94,8 @@ public class ExamService {
      * @param query
      * @return
      */
-    public Page<Long> getByUsername(String username, Pageable pageable, String query) {
-            UserEntity userFetched = userService.findByEmail(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+    public Page<Long> getExamsByUsername(String username, Pageable pageable, String query) {
+            UserEntity userFetched = getUserEntityByEmail(username);
 
             if (query.isBlank()) {
                 return examRepository.findByUserId(userFetched.getId(),pageable)
@@ -106,5 +105,16 @@ public class ExamService {
                 return examRepository.searchByUserAndQuery(userFetched.getId(), query.toLowerCase(), pageable)
                         .map(Exam::getId);
             }
+    }
+
+    UserEntity getUserEntityByEmail(String username){
+        return userService.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+    }
+
+    public ExamDTO getActiveExam(String username) {
+        UserEntity user = getUserEntityByEmail(username);
+        Exam e = examRepository.findFirstByUserIdAndFinishedFalse(user.getId()).orElseThrow(()->new ExamNotFoundException("You don't have an active exam!"));
+        return e.toDTO();
     }
 }

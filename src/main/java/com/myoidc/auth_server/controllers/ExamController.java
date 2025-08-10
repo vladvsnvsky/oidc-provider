@@ -26,7 +26,7 @@ public class ExamController {
     }
 
 
-    @PostMapping("/start")
+    @GetMapping("/start")
     public ResponseEntity<ApiResponse> startExam(Authentication authentication){
         try{
 
@@ -42,23 +42,19 @@ public class ExamController {
             ApiResponse apiResp = new ApiResponse(
                     false,
                     null,
-                    "failed"
+                    ex.getMessage()
             );
             return ResponseEntity.ok(apiResp);
         }
 
     }
 
-    @GetMapping()
-    public ResponseEntity<ApiResponse> getExams(
-            @RequestParam(defaultValue = "") String query,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            Authentication authentication){
+    @GetMapping("/continue")
+    public ResponseEntity<ApiResponse> continueExam(Authentication authentication){
         try{
-            String username = authentication.getName(); // principal username
-            Pageable pageable = PageRequest.of(page, size);
-            Page<Long> res = examService.getByUsername(username, pageable, query);
+
+            String username = authentication.getName();
+            ExamDTO res = examService.getActiveExam(username);
             ApiResponse apiResp = new ApiResponse(
                     true,
                     res,
@@ -69,11 +65,13 @@ public class ExamController {
             ApiResponse apiResp = new ApiResponse(
                     false,
                     null,
-                    "failed"
+                    ex.getMessage()
             );
             return ResponseEntity.ok(apiResp);
         }
 
     }
+
+
 
 }
