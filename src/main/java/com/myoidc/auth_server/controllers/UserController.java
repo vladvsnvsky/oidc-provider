@@ -1,11 +1,9 @@
 package com.myoidc.auth_server.controllers;
 
-import com.myoidc.auth_server.dto.QuestionDTO;
 import com.myoidc.auth_server.dto.UserEntityDTO;
 import com.myoidc.auth_server.dto.UserRegistrationDTO;
 import com.myoidc.auth_server.dto.UserUpdateDTO;
 import com.myoidc.auth_server.models.ApiResponse;
-import com.myoidc.auth_server.models.Question;
 import com.myoidc.auth_server.models.UserEntity;
 import com.myoidc.auth_server.services.UserService;
 import org.springframework.data.domain.Page;
@@ -15,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 

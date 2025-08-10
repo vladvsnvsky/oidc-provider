@@ -2,14 +2,18 @@ package com.myoidc.auth_server.services;
 
 import com.myoidc.auth_server.custom_exceptions.NoExamAttemptsException;
 import com.myoidc.auth_server.dto.ExamDTO;
+import com.myoidc.auth_server.dto.UserUpdateDTO;
 import com.myoidc.auth_server.models.Exam;
 import com.myoidc.auth_server.models.ExamQuestion;
 import com.myoidc.auth_server.models.Question;
 import com.myoidc.auth_server.models.UserEntity;
 import com.myoidc.auth_server.repositories.ExamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +33,7 @@ public class ExamService {
     }
 
 
+    @Transactional
     public ExamDTO create(String email){
         try{
             UserEntity userFetched = userService.findByEmail(email)
@@ -50,8 +55,12 @@ public class ExamService {
                 examQuestionSet.add(examQuestion);
             });
             e.setQuestions(examQuestionSet);
+            UserUpdateDTO userUpdate = new UserUpdateDTO();
+            userUpdate.setAttempts(userFetched.getAttempts()-1);
+            //this must be like one transaction
             Exam eInDb = examRepository.save(e);
-            userFetched.setAttempts(userFetched.getAttempts()-1);
+            userService.update(userFetched.getId(),userUpdate);
+
             return eInDb.toDTO();
         }catch (NoExamAttemptsException e){
             System.err.println("SERVICE Layer: No attempts for this user!");
@@ -68,7 +77,24 @@ public class ExamService {
 
     }
 
+    /**
+     * This will return the exam_ids for the user's exams
+     * @param username
+     * @param pageable
+     * @param query
+     * @return
+     */
+    public Page<Long> getByUsername(String username, Pageable pageable, String query) {
+            UserEntity userFetched = userService.findByEmail(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
 
-
-
+            if (query.isBlank()) {
+                return examRepository.findByUserId(userFetched.getId(),pageable)
+                        .map(Exam::getId);
+            } else {
+                // adapt the search to whatever field you want to filter on
+                return examRepository.searchByUserAndQuery(userFetched.getId(), query.toLowerCase(), pageable)
+                        .map(Exam::getId);
+            }
+    }
 }

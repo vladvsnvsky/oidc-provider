@@ -4,6 +4,7 @@ import com.myoidc.auth_server.dto.ExamDTO;
 import com.myoidc.auth_server.dto.ExamQuestionDTO;
 import com.myoidc.auth_server.models.enums.AnswerStatus;
 import jakarta.persistence.*;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,6 +24,16 @@ public class Exam {
     // use join entity to carry per-exam state
     @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ExamQuestion> questions = new HashSet<>();
+
+    private boolean finished = false;
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
 
     public Exam(){}
 
