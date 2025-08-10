@@ -26,4 +26,6 @@ public interface ExamRepository extends JpaRepository<Exam, Long> {
     Page<Exam> searchByUserAndQuery(@Param("userId") UUID userId,
                                     @Param("q") String q,
                                     Pageable pageable);
+
+    boolean existsByUserIdAndFinishedFalse(UUID userId);
 }

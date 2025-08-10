@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class ExamService {
@@ -41,6 +42,11 @@ public class ExamService {
 
             if(userFetched.getAttempts() < 1)
                 throw new NoExamAttemptsException();
+
+            if(userHasActiveExam(userFetched.getId()))
+            {
+                throw new RuntimeException("User already has an active exam!");
+            }
 
             Exam e = new Exam();
             e.setUser(userFetched);
@@ -75,6 +81,10 @@ public class ExamService {
             throw new RuntimeException(e.getMessage());
         }
 
+    }
+
+    private boolean userHasActiveExam(UUID id) {
+        return examRepository.existsByUserIdAndFinishedFalse(id);
     }
 
     /**

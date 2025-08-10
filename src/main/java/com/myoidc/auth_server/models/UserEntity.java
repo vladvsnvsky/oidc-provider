@@ -25,6 +25,7 @@ public class UserEntity implements UserDetails {
     private String firstName;
     private String lastName;
     private int attempts;
+
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthdate;
 
@@ -50,6 +51,7 @@ public class UserEntity implements UserDetails {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = createdAt;
     }
+
 
     public static UserEntity fromDTO(UserEntityDTO dto) {
         UserEntity result = new UserEntity();

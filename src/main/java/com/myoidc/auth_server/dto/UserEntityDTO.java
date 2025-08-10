@@ -13,6 +13,7 @@ public class UserEntityDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+
     // Constructors
     public UserEntityDTO() {}
 
