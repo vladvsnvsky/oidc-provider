@@ -1,5 +1,6 @@
 package com.myoidc.auth_server.services;
 
+import com.myoidc.auth_server.custom_exceptions.NoExamAttemptsException;
 import com.myoidc.auth_server.dto.ExamDTO;
 import com.myoidc.auth_server.models.Exam;
 import com.myoidc.auth_server.models.ExamQuestion;
@@ -33,6 +34,9 @@ public class ExamService {
             UserEntity userFetched = userService.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
 
+            if(userFetched.getAttempts() < 1)
+                throw new NoExamAttemptsException();
+
             Exam e = new Exam();
             e.setUser(userFetched);
             List<Question> fetchedQuestions = questionService.getRandomQuestions(10);
@@ -47,8 +51,13 @@ public class ExamService {
             });
             e.setQuestions(examQuestionSet);
             Exam eInDb = examRepository.save(e);
+            userFetched.setAttempts(userFetched.getAttempts()-1);
             return eInDb.toDTO();
-        }catch(UsernameNotFoundException e){
+        }catch (NoExamAttemptsException e){
+            System.err.println("SERVICE Layer: No attempts for this user!");
+            throw new RuntimeException("No attempts for this user!");
+        }
+        catch(UsernameNotFoundException e){
             System.err.println("SERVICE Layer: User not found!");
             throw new RuntimeException(e.getMessage());
         }

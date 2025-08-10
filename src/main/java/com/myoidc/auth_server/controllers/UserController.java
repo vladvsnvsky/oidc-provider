@@ -3,6 +3,7 @@ package com.myoidc.auth_server.controllers;
 import com.myoidc.auth_server.dto.QuestionDTO;
 import com.myoidc.auth_server.dto.UserEntityDTO;
 import com.myoidc.auth_server.dto.UserRegistrationDTO;
+import com.myoidc.auth_server.dto.UserUpdateDTO;
 import com.myoidc.auth_server.models.ApiResponse;
 import com.myoidc.auth_server.models.Question;
 import com.myoidc.auth_server.models.UserEntity;
@@ -17,7 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+
 @RequestMapping("/api/users")
 @RestController
 public class UserController {
@@ -72,6 +73,18 @@ public class UserController {
                 "success"
         );
         return ResponseEntity.ok(apiResp);
+    }
+
+    @PutMapping(
+            value = "/{id}",
+            consumes = "application/json",
+            produces = "application/json"
+    )
+    public ResponseEntity<UserEntityDTO> updateUser(
+            @PathVariable("id") java.util.UUID id,
+            @RequestBody UserUpdateDTO dto) {
+        UserEntityDTO updated = userService.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
 
