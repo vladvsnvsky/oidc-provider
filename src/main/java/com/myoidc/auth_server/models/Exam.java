@@ -6,10 +6,7 @@ import com.myoidc.auth_server.models.enums.AnswerStatus;
 import jakarta.persistence.*;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 public class Exam {
@@ -81,5 +78,8 @@ public class Exam {
     }
 
 
-
+    public void updateExamQuestion(ExamQuestion fExamQuestion) {
+        this.questions.removeIf(q -> Objects.equals(q.getId(), fExamQuestion.getId()));
+        this.questions.add(fExamQuestion);
+    }
 }

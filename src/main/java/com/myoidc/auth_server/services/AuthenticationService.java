@@ -28,16 +28,16 @@ public class AuthenticationService {
                     token
             );
 
-            Optional<UserEntity> inDb = userService.findByEmail(request.getEmail());
+            Optional<UserEntity> ofUser = userService.findByEmail(request.getEmail());
 
-            if(inDb.isEmpty())
+            if(ofUser.isEmpty())
             {
                 throw new RuntimeException("User not found!");
             }
 
             response.setSuccess(true);
             response.setMessage("Authenticated!");
-            response.setUser(inDb.get().toDTO());
+            response.setUser(ofUser.get().toDTO());
             return response;
 
 

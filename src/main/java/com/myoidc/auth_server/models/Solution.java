@@ -9,7 +9,7 @@ public class Solution {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // can still use "a", "b", "c", "d" as primary key, but consider using a Long id in practice
+    private Long id;
 
     private OptionLabel optionId; // <-- "a", "b", "c", "d"
 

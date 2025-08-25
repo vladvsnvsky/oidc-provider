@@ -1,5 +1,4 @@
 package com.myoidc.auth_server.dto;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.myoidc.auth_server.models.enums.AnswerStatus;
 
 public class ExamQuestionDTO {

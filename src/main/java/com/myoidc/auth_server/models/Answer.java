@@ -1,49 +1,53 @@
 package com.myoidc.auth_server.models;
 
+import com.myoidc.auth_server.dto.RegisterAnswerDTO;
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class Answer {
-    private String studentId;
-    private String examId;
-    private String questionId;
-    private List<String> values;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    // FK lives here; Answer -> ExamQuestion (no cascade back)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "exam_question_id", nullable = false, unique = true)
+    private ExamQuestion examQuestion;
 
-    public Answer(String studentId, String examId, String questionId, List<String> values) {
-        this.studentId = studentId;
-        this.examId = examId;
-        this.questionId = questionId;
-        this.values = values;
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ResponseModel> responses = new ArrayList<>();
+
+    public Answer(){}
+
+    public Answer(Long id, ExamQuestion examQuestion, List<ResponseModel> responses) {
+        this.id = id;
+        this.examQuestion = examQuestion;
+        this.responses = responses;
     }
 
-    public String getStudentId() {
-        return studentId;
+    public Long getId() {
+        return id;
     }
 
-    public void setStudentId(String studentId) {
-        this.studentId = studentId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public String getExamId() {
-        return examId;
+    public ExamQuestion getExamQuestion() {
+        return examQuestion;
     }
 
-    public void setExamId(String examId) {
-        this.examId = examId;
+    public void setExamQuestion(ExamQuestion examQuestion) {
+        this.examQuestion = examQuestion;
     }
 
-    public String getQuestionId() {
-        return questionId;
+    public List<ResponseModel> getResponses() {
+        return responses;
     }
 
-    public void setQuestionId(String questionId) {
-        this.questionId = questionId;
-    }
-
-    public List<String> getValues() {
-        return values;
-    }
-
-    public void setValues(List<String> values) {
-        this.values = values;
+    public void setResponses(List<ResponseModel> responses) {
+        this.responses = responses;
     }
 }

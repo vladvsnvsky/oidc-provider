@@ -1,7 +1,6 @@
 package com.myoidc.auth_server.models;
 
 import com.myoidc.auth_server.dto.ExamQuestionDTO;
-import com.myoidc.auth_server.dto.QuestionDTO;
 import com.myoidc.auth_server.models.enums.AnswerStatus;
 import jakarta.persistence.*;
 
@@ -22,10 +21,15 @@ public class ExamQuestion {
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;
 
-    private boolean answered;
-
     @Enumerated(EnumType.STRING)
     private AnswerStatus correct = AnswerStatus.NONE;
+
+    private boolean answered;
+
+    // ExamQuestion owns the lifecycle of Answer
+    @OneToOne(mappedBy = "examQuestion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private Answer answer;
 
     public ExamQuestion(){}
     public ExamQuestion(Long id, Exam exam, Question question, boolean answered, AnswerStatus correct) {
@@ -95,5 +99,14 @@ public class ExamQuestion {
                 dto.isAnswered(),
                 dto.getCorrect()
         );
+    }
+
+    public Answer getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(Answer answer) {
+        this.answered = true;
+        this.answer = answer;
     }
 }

@@ -1,18 +1,10 @@
 package com.myoidc.auth_server.controllers;
 import com.myoidc.auth_server.dto.*;
 import com.myoidc.auth_server.models.ApiResponse;
-import com.myoidc.auth_server.models.Exam;
 import com.myoidc.auth_server.services.ExamService;
-import com.myoidc.auth_server.services.QuestionService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.*;
 
 
 @RestController
@@ -55,6 +47,31 @@ public class ExamController {
 
             String username = authentication.getName();
             ExamDTO res = examService.getActiveExam(username);
+            ApiResponse apiResp = new ApiResponse(
+                    true,
+                    res,
+                    "success"
+            );
+            return ResponseEntity.ok(apiResp);
+        }catch (RuntimeException ex){
+            ApiResponse apiResp = new ApiResponse(
+                    false,
+                    null,
+                    ex.getMessage()
+            );
+            return ResponseEntity.ok(apiResp);
+        }
+
+    }
+
+    @PostMapping("/answer")
+    public ResponseEntity<ApiResponse> sendAnswer(Authentication authentication,@RequestBody RegisterAnswerDTO dto){
+        try{
+
+            String username = authentication.getName();
+
+            Object res = examService.recordAnswer(username, dto);
+
             ApiResponse apiResp = new ApiResponse(
                     true,
                     res,

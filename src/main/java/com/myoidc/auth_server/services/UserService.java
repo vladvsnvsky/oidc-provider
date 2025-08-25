@@ -60,7 +60,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserEntityDTO update(UUID dbId, UserUpdateDTO dto) {
-        UserEntity fromDb = userRepository.findById(dbId).orElseThrow(()->
+        UserEntity fUser = userRepository.findById(dbId).orElseThrow(()->
            new RuntimeException("User not found!")
         );
 
@@ -68,47 +68,47 @@ public class UserService implements UserDetailsService {
             throw new RuntimeException("Cannot update the id");
         }
 
-        if (dto.getEmail() != null && !Objects.equals(dto.getEmail(), fromDb.getEmail())) {
+        if (dto.getEmail() != null && !Objects.equals(dto.getEmail(), fUser.getEmail())) {
             if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
                 throw new IllegalArgumentException("Email already in use");
             }
-            fromDb.setEmail(dto.getEmail());
+            fUser.setEmail(dto.getEmail());
             System.out.println("Email changed...");
         }
 
-        if (dto.getFirstName() != null && !Objects.equals(dto.getFirstName(), fromDb.getFirstName())) {
-            fromDb.setFirstName(dto.getFirstName());
+        if (dto.getFirstName() != null && !Objects.equals(dto.getFirstName(), fUser.getFirstName())) {
+            fUser.setFirstName(dto.getFirstName());
             System.out.println("First Name changed! ...");
         }
 
-        if (dto.getLastName() != null && !Objects.equals(dto.getLastName(), fromDb.getLastName())) {
-            fromDb.setLastName(dto.getLastName());
+        if (dto.getLastName() != null && !Objects.equals(dto.getLastName(), fUser.getLastName())) {
+            fUser.setLastName(dto.getLastName());
             System.out.println("Last Name changed! ...");
         }
 
-        if (dto.getBirthdate() != null && !Objects.equals(dto.getBirthdate(), fromDb.getBirthdate())) {
-            fromDb.setBirthdate(dto.getBirthdate());
+        if (dto.getBirthdate() != null && !Objects.equals(dto.getBirthdate(), fUser.getBirthdate())) {
+            fUser.setBirthdate(dto.getBirthdate());
             System.out.println("Birthdate changed! ...");
         }
 
-        if (dto.getAttempts() != fromDb.getAttempts()) {
-            fromDb.setAttempts(dto.getAttempts());
+        if (dto.getAttempts() != fUser.getAttempts()) {
+            fUser.setAttempts(dto.getAttempts());
             System.out.println("Attempts changed! ...");
         }
 
-        if (dto.getHashedPassword() != null && !Objects.equals(dto.getHashedPassword(), fromDb.getHashedPassword())) {
-            fromDb.setHashedPassword(dto.getHashedPassword());
+        if (dto.getHashedPassword() != null && !Objects.equals(dto.getHashedPassword(), fUser.getHashedPassword())) {
+            fUser.setHashedPassword(dto.getHashedPassword());
             System.out.println("Password changed! ...");
         }
 
         if (dto.getRole() != null
-                && (fromDb.getRole() == null || !Objects.equals(fromDb.getRole().getName(), dto.getRole()))) {
+                && (fUser.getRole() == null || !Objects.equals(fUser.getRole().getName(), dto.getRole()))) {
             Role role = roleRepository.findByName(dto.getRole())
                     .orElseThrow(() -> new IllegalArgumentException("Role not found"));
-            fromDb.setRole(role);
+            fUser.setRole(role);
         }
 
-        return userRepository.save(fromDb).toDTO();
+        return userRepository.save(fUser).toDTO();
     }
 
     public UserEntityDTO createAdministrator(UserRegistrationDTO input) {
